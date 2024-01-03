@@ -42,7 +42,8 @@
 
 - name: CertMonitor | Create custom list of expiring certificates
   ansible.builtin.set_fact:
-    expiring_certs: "{{ expiring_certs + [{'hostname': inventory_hostname, 'path': item.item, 'subject': item.subject.commonName, 'san': item.subject_alt_name, 'days_to_expiration': ((item.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).days}] }}"  # noqa yaml[line-length]
+    # yamllint disable-line rule:line-length
+    expiring_certs: "{{ expiring_certs + [{'hostname': inventory_hostname, 'path': item.item, 'subject': item.subject.commonName, 'san': item.subject_alt_name, 'days_to_expiration': ((item.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).days}] }}"
   loop: "{{ _expiring_certs }}"
   loop_control:
     label: "{{ item.item }}"
