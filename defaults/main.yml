@@ -1,0 +1,45 @@
+---
+# defaults file for ansible-role-certmonitor
+
+# Check these paths for patterns specified below
+certmonitor_include_paths_global:
+  - /etc/pki
+  - /etc/ssl
+  - /opt
+certmonitor_include_paths_group: []
+certmonitor_include_paths_host: []
+
+# These patterns will be checked
+certmonitor_include_patterns_global:
+  - '.*\.crt$'
+  - '.*\.pem$'
+certmonitor_include_patterns_group: []
+certmonitor_include_patterns_host: []
+
+# Because there are a lot of "default" certificates, we define our
+# regex patterns here that we want to exclude
+certmonitor_exclude_patterns_global:
+  - '/etc/pki/product-default/.*\.pem$'
+  - '/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+  - '/etc/pki/ca-trust/extracted/pem/.*\.pem$'
+  - '/etc/pki/fwupd.*\.pem$'
+  - '/etc/pki/consumer/.*\.pem$'
+  - '/etc/pki/entitlement/.*\.pem$'
+  - '/etc/pki/nginx/dhparam.pem'
+  - '/etc/pki/tls/certs/localhost.crt'
+  - '.*-key\.pem$'
+  - '.*\.key\.pem$'
+certmonitor_exclude_patterns_group: []
+certmonitor_exclude_patterns_host: []
+
+# The check of the certificates validity specified in weeks from now
+# By default we use "+2w" to report certificates that expire within
+# the next two weeks
+certmonitor_validity_check: "+2w"
+
+# Default email reporting is disabled, set the following to true to enable
+# certmonitor_email_enabled: true
+certmonitor_email_subject: "Expiring TLS Certificates"
+
+# Set the output to HTML
+certmonitor_email_subtype: "html"

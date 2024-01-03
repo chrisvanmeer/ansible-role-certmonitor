@@ -1,0 +1,80 @@
+---
+# tasks file for ansible-role-certmonitor
+
+- name: CertMonitor | Combine global, group and host variables
+  ansible.builtin.set_fact:
+    certmonitor_include_paths: "{{ certmonitor_include_paths_global | combine(certmonitor_include_paths_group | combine(certmonitor_include_paths_host)) }}"
+    certmonitor_include_patterns: "{{ certmonitor_include_patterns_global | combine(certmonitor_include_patterns_group | combine(certmonitor_include_patterns_host)) }}"
+    certmonitor_exclude_patterns: "{{ certmonitor_exclude_patterns_global | combine(certmonitor_exclude_patterns_group | combine(certmonitor_exclude_patterns_host)) }}"
+
+- name: CertMonitor | Find all certificates
+  ansible.builtin.find:
+    paths: "{{ certmonitor_include_paths }}"
+    file_type: file
+    recurse: true
+    use_regex: true
+    patterns: "{{ certmonitor_include_patterns }}"
+  register: _certificates
+
+- name: CertMonitor | Convert dict to list
+  ansible.builtin.set_fact:
+    _certificates_list: "{{ _certificates.files | map(attribute='path') | list }}"
+
+- name: CertMonitor | Cleanup certificate list
+  ansible.builtin.set_fact:
+    certificates: "{{ _certificates_list | reject('match', '(' + exclude_patterns | join('|') + ')') | list }}"
+
+- name: CertMonitor | Check certificate validity
+  community.crypto.x509_certificate_info:
+    path: "{{ item }}"
+    valid_at:
+      check: "{{ certmonitor_validity_check }}"
+  loop: "{{ certificates }}"
+  register: cert_results
+
+- name: CertMonitor | Filter out expiring certificates
+  ansible.builtin.set_fact:
+    _expiring_certs: "{{ cert_results | json_query('results[? !(valid_at.check)]') }}"
+
+- name: CertMonitor | Initialize an empty list for expiring certificates
+  ansible.builtin.set_fact:
+    expiring_certs: []
+
+- name: CertMonitor | Create custom list of expiring certificates
+  ansible.builtin.set_fact:
+    expiring_certs: "{{ expiring_certs + [{'hostname': inventory_hostname, 'path': item.item, 'subject': item.subject.commonName, 'san': item.subject_alt_name, 'days_to_expiration': ((item.not_after | to_datetime('%Y%m%d%H%M%SZ')) - (ansible_date_time.iso8601 | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).days}] }}"  # noqa yaml[line-length]
+  loop: "{{ _expiring_certs }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: CertMonitor | Combine all expiring certificates into one list
+  ansible.builtin.set_fact:
+    expiring_certs_full: "{{ hostvars | json_query('*.expiring_certs[]') }}"
+
+- name: CertMonitor | Output expiring certificates
+  ansible.builtin.debug:
+    var: expiring_certs_full
+  delegate_to: localhost
+  run_once: true  # noqa run-once[task]
+  when: expiring_certs_full | length > 0
+
+- name: CertMonitor | Email
+  community.general.mail:
+    host: "{{ certmonitor_smtp_server | default(omit) }}"
+    port: "{{ certmonitor_smtp_port | default(omit) }}"
+    username: "{{ certmonitor_smtp_username | default(omit) }}"
+    password: "{{ certmonitor_smtp_password | default(omit) }}"
+    secure: "{{ certmonitor_smtp_secure | default(omit) }}"
+    to: "{{ certmonitor_email_recipient | default(omit) }}"
+    cc: "{{ certmonitor_email_recipient_cc | default(omit) }}"
+    bcc: "{{ certmonitor_email_recipient_bcc | default(omit) }}"
+    sender: "{{ certmonitor_email_sender | default(omit) }}"
+    subject: "{{ certmonitor_email_subject }}"
+    body: "{{ lookup('template', 'email_body.html.j2') }}"
+    subtype: "{{ certmonitor_email_subtype }}"
+    headers: "{{ certmonitor_email_subtype | default(omit) }}"
+  run_once: true  # noqa run-once[task]
+  delegate_to: localhost
+  when:
+    - certmonitor_email_enabled | default(false)
+    - expiring_certs_full | length > 0
