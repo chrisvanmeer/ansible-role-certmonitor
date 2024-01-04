@@ -125,12 +125,12 @@ Including an example of how to use your role (for instance, with variables passe
   become: true
 
   vars:
-    email_enabled: true
-    email_subject: "Expiring TLS Certificates"
-    email_sender: "certificates@yourdomain.com"
-    email_recipient: "soc@yourdomain.com"
-    smtp_server: "smtp.yourdomain.com"
-    smtp_port: 25
+    certmonitor_email_enabled: true
+    certmonitor_email_subject: "Expiring TLS Certificates"
+    certmonitor_email_sender: "certificates@yourdomain.com"
+    certmonitor_email_recipient: "soc@yourdomain.com"
+    certmonitor_smtp_server: "smtp.yourdomain.com"
+    certmonitor_smtp_port: 25
 
   roles:
      - role: chrisvanmeer.certmonitor
