@@ -3,9 +3,12 @@
 
 - name: CertMonitor | Combine global, group and host variables
   ansible.builtin.set_fact:
-    certmonitor_include_paths: "{{ certmonitor_include_paths_global | combine(certmonitor_include_paths_group | combine(certmonitor_include_paths_host)) }}"
-    certmonitor_include_patterns: "{{ certmonitor_include_patterns_global | combine(certmonitor_include_patterns_group | combine(certmonitor_include_patterns_host)) }}"
-    certmonitor_exclude_patterns: "{{ certmonitor_exclude_patterns_global | combine(certmonitor_exclude_patterns_group | combine(certmonitor_exclude_patterns_host)) }}"
+    # yamllint disable-line rule:line-length
+    certmonitor_include_paths: "{{ certmonitor_include_paths_global + certmonitor_include_paths_group + certmonitor_include_paths_host }}"
+    # yamllint disable-line rule:line-length
+    certmonitor_include_patterns: "{{ certmonitor_include_patterns_global + certmonitor_include_patterns_group + certmonitor_include_patterns_host }}"
+    # yamllint disable-line rule:line-length
+    certmonitor_exclude_patterns: "{{ certmonitor_exclude_patterns_global + certmonitor_exclude_patterns_group + certmonitor_exclude_patterns_host }}"
 
 - name: CertMonitor | Find all certificates
   ansible.builtin.find:
@@ -22,7 +25,8 @@
 
 - name: CertMonitor | Cleanup certificate list
   ansible.builtin.set_fact:
-    certificates: "{{ _certificates_list | reject('match', '(' + exclude_patterns | join('|') + ')') | list }}"
+    # yamllint disable-line rule:line-length
+    certificates: "{{ _certificates_list | reject('match', '(' + certmonitor_exclude_patterns | join('|') + ')') | list }}"
 
 - name: CertMonitor | Check certificate validity
   community.crypto.x509_certificate_info:
