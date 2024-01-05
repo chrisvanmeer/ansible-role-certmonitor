@@ -52,6 +52,30 @@
   loop_control:
     label: "{{ item.item }}"
 
+- name: CertMonitor | Local Reporting
+  when: certmonitor_local_reporting
+  block:
+    - name: CertMonitor | Local Reporting | Ensure CertMonitor directory removal
+      ansible.builtin.file:
+        path: "{{ certmonitor_local_reporting_path }}"
+        state: absent
+
+    - name: CertMonitor | Local Reporting | Ensure CertMonitor directory creation
+      ansible.builtin.file:
+        path: "{{ certmonitor_local_reporting_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: CertMonitor | Local Reporting | Ensure expiring certificate file content
+      ansible.builtin.copy:
+        dest: "{{ certmonitor_local_reporting_path }}/{{ item.subject }}"
+        content: |
+          {{ item.path }}
+        mode: '0644'
+      loop: "{{ expiring_certs }}"
+      loop_control:
+        label: "{{ item.subject }}"
+
 - name: CertMonitor | Combine all expiring certificates into one list
   ansible.builtin.set_fact:
     expiring_certs_full: "{{ hostvars | json_query('*.expiring_certs[]') }}"

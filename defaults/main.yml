@@ -43,3 +43,7 @@ certmonitor_email_subject: "Expiring TLS Certificates"
 
 # Set the output to HTML
 certmonitor_email_subtype: "html"
+
+# By default disable local reporting
+certmonitor_local_reporting: false
+certmonitor_local_reporting_path: /tmp/certmonitor

@@ -108,6 +108,18 @@ Setting the email mime type to `html`. Can also be set to `plain`. One can modif
 
 There are more variables available for the email section. Refer to the last task in the playbook for this. If not existent, these will be omitted, but this gives you the option to include these values in variables, rather than having to edit the playbook.
 
+```yml
+certmonitor_local_reporting: false
+```
+
+If local reporting is enabled, there will be a file written to the location specified with the name of the certificate subject. Within that file, the file location is written. This can be used by a monitoring system like Zabbix to trigger on the existence of this file and have the file location at hand.
+
+```yml
+certmonitor_local_reporting_path: /tmp/certmonitor
+```
+
+The location where the files will be written if local reporting is enabled.
+
 Dependencies
 ------------
 
