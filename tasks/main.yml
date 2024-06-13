@@ -101,9 +101,10 @@
     subject: "{{ certmonitor_email_subject }}"
     body: "{{ lookup('template', 'email_body.html.j2') }}"
     subtype: "{{ certmonitor_email_subtype }}"
-    headers: "{{ certmonitor_email_subtype | default(omit) }}"
+    headers: "{{ certmonitor_email_headers | default(omit) }}"
   run_once: true  # noqa run-once[task]
   delegate_to: localhost
+  become: false
   when:
     - certmonitor_email_enabled | default(false)
     - expiring_certs_full | length > 0
