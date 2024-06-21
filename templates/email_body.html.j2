@@ -4,20 +4,34 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ certmonitor_email_subject }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+      table {
+          width: 100%;
+          border-collapse: collapse;
+          border: 2px solid #ccc;
+      }
+      th, td {
+          border: 1px solid #ccc;
+          padding: 8px;
+          text-align: left;
+      }
+      th {
+          background-color: #f2f2f2;
+      }
+    </style>
   </head>
   <body>
-    <div class="container">
-      <h1 class="text-center">{{ certmonitor_email_subject }}</h1>
-      <table class="table">
-        <thead class="table-info">
+    <div>
+      <h1>{{ certmonitor_email_subject }}</h1>
+      <table>
+        <thead>
           <tr>
             {% for key in expiring_certs_full[0].keys() %}
-              <th scope="col">{{ key }}</th>
+              <th>{{ key | replace("_", " ") | title }}</th>
             {% endfor %}
           </tr>
         </thead>
-        <tbody class="table-group-divider">
+        <tbody>
           {% for item in expiring_certs_full %}
             <tr>
               {% for value in item.values() %}
@@ -28,6 +42,5 @@
         </tbody>
       </table>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
   </body>
 </html>
