@@ -1,0 +1,7 @@
+---
+- name: Syntax check for the certmonitor role
+  hosts: all
+  connection: local
+  gather_facts: false
+  roles:
+    - certmonitor

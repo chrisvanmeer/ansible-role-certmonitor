@@ -12,6 +12,7 @@
 # option are parsed relative to the CWD of execution.
 exclude_paths:
   - library/
+  - tests/
 
 # Return non-zero exit code on warnings as well as errors
 strict: true

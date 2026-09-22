@@ -1,0 +1,44 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    name: ansible-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v26
+
+  syntax:
+    name: Syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ansible-core and collections
+        run: |
+          python -m pip install ansible-core
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: Link role as certmonitor
+        run: |
+          mkdir -p tests/roles
+          ln -s "$GITHUB_WORKSPACE" tests/roles/certmonitor
+
+      - name: Run syntax check
+        run: ansible-playbook --syntax-check -i "localhost," tests/test.yml
