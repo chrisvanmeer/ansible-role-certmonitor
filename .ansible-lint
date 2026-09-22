@@ -15,6 +15,3 @@ exclude_paths:
 
 # Return non-zero exit code on warnings as well as errors
 strict: true
-
-# Use terse parseable output
-parseable: true

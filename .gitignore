@@ -1,0 +1,24 @@
+# Python / tooling
+*.pyc
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+
+# Ansible
+*.retry
+.ansible/
+molecule/**/.cache/
+.cache/
+
+# OS / editors
+.DS_Store
+*.swp
+.idea/
+.vscode/*
+
+# Secrets and certificate material
+*.key
+*.pem
+*.crt
+*.p12

@@ -38,6 +38,14 @@ rules:
 
     # Disabling to allow for code comment blocks and #!/usr/bin/ansible-playbook
     require-starting-space: false
+    # Required by ansible-lint
+    min-spaces-from-content: 1
+
+  comments-indentation: false
+
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true
 
   indentation:
     # Defaults

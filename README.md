@@ -108,11 +108,17 @@ Setting the email mime type to `html`. Can also be set to `plain`. One can modif
 
 There are more variables available for the email section. Refer to the last task in the playbook for this. If not existent, these will be omitted, but this gives you the option to include these values in variables, rather than having to edit the playbook.
 
+When `certmonitor_email_enabled` is set to `true`, the role will fail fast if the following required variables are missing: `certmonitor_smtp_server`, `certmonitor_email_sender` and `certmonitor_email_recipient`.
+
+The reporting and email logic aggregates the expiring certificates from all hosts and runs a single time on the first host of the play (using `run_once`). The aggregation reads the `expiring_certs` value from every host's facts; on very large fleets the first host may finish before other hosts have reported, so the aggregate can be incomplete if hosts run in parallel — prefer a play that targets the monitored hosts with a limited set when you rely on complete email reporting. The email and debug output are only shown/sent when at least one expiring certificate was found.
+
 ```yml
 certmonitor_local_reporting: false
 ```
 
 If local reporting is enabled, there will be a file written to the location specified with the name of the certificate subject. Within that file, the file location is written. This can be used by a monitoring system like Zabbix to trigger on the existence of this file and have the file location at hand.
+
+The file is named after the certificate's subject common name. Unsafe characters are replaced with underscores, and certificates without a common name (e.g. SAN-only) are named after a hash of the certificate path. Report files for certificates that are no longer expiring are removed automatically, so renewed certificates stop generating reports.
 
 ```yml
 certmonitor_local_reporting_path: /tmp/certmonitor
@@ -125,6 +131,10 @@ Dependencies
 
 For the certificate inspection, this role depends on the `community.crypto.x509_certificate_info` module.  
 For email, this role depends on the `community.general.mail` module.
+
+Both collections can be installed with `ansible-galaxy install -r requirements.yml`.
+
+This role does not require `jmespath` and does not rely on `gather_facts`.
 
 Example Playbook
 ----------------
