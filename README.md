@@ -110,7 +110,7 @@ There are more variables available for the email section. Refer to the last task
 
 When `certmonitor_email_enabled` is set to `true`, the role will fail fast if the following required variables are missing: `certmonitor_smtp_server`, `certmonitor_email_sender` and `certmonitor_email_recipient`.
 
-The reporting and email logic aggregates the expiring certificates from all hosts and runs a single time on the first host of the play (using `run_once`). The aggregation reads the `expiring_certs` value from every host's facts; on very large fleets the first host may finish before other hosts have reported, so the aggregate can be incomplete if hosts run in parallel — prefer a play that targets the monitored hosts with a limited set when you rely on complete email reporting. The email and debug output are only shown/sent when at least one expiring certificate was found.
+The reporting and email logic aggregates the expiring certificates from all hosts and runs a single time (using `run_once`). The email itself is sent from the Ansible controller (`delegate_to: localhost`, without `become`), so the controller needs access to the configured SMTP relay; the managed hosts do not. The aggregation reads the `expiring_certs` value from every host's facts; on very large fleets the first host may finish before other hosts have reported, so the aggregate can be incomplete if hosts run in parallel — prefer a play that targets the monitored hosts with a limited set when you rely on complete email reporting. The email and debug output are only shown/sent when at least one expiring certificate was found.
 
 ```yml
 certmonitor_local_reporting: false

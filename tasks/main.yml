@@ -187,6 +187,7 @@
     subtype: "{{ certmonitor_email_subtype }}"
     headers: "{{ certmonitor_email_headers | default(omit) }}"
   run_once: true  # noqa run-once[task]
+  delegate_to: localhost
   become: false
   when:
     - certmonitor_email_enabled | default(false)
