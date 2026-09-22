@@ -13,9 +13,9 @@ jobs:
     if: secrets.GALAXY_API_KEY != ''
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Import role to Galaxy
-        uses: ansible/galaxy-action@v1
+        uses: ansible-actions/ansible-galaxy-action@v1.2.0
         with:
           galaxy_api_key: ${{ secrets.GALAXY_API_KEY }}
